@@ -19,7 +19,7 @@ Help: press [H] to show this help menu\n"""
 
 
 class Mask(QtWidgets.QWidget):
-  def __init__(self, imgWidth, imgHeight, infile, imagefile, sleepTime, noise):
+  def __init__(self, imgWidth, imgHeight, infile, imagefile, sleepTime, noise, noiseFile):
     super(Mask, self).__init__()
 
     self.setAutoFillBackground(True)
@@ -58,6 +58,8 @@ class Mask(QtWidgets.QWidget):
     self.fullscreen = True
     self.sensor_readings = np.zeros((self.imgHeight * self.imgWidth, 1))
     self.noise = noise
+    if self.noise:
+        self.scan_noise = np.load(noiseFile)
     self.time0 = time.time()                          # Will be used to time scan
     self.time_final = 0
 
@@ -105,7 +107,7 @@ class Mask(QtWidgets.QWidget):
       elapsed_time = self.time_final - self.time0
       print("\nScan completed")
       print("Scan time: %.3f m" % ((elapsed_time//60)), " %.3f s" % ((elapsed_time)%60))
-      time.sleep(2.0)
+      time.sleep(5.0)
       self.close()
 
     else:
@@ -116,8 +118,11 @@ class Mask(QtWidgets.QWidget):
       self.sensor_readings[self.count] = curr_scan               # Add to vector of sensor reading
       
       if self.noise:
-        scan_noise = np.random.normal(0, self.noise)
-        self.sensor_readings[self.count] += scan_noise
+        self.sensor_readings[self.count] += self.scan_noise[self.count]
+        if self.sensor_readings[self.count] > 255:
+            self.sensor_readings[self.count] = 255
+        if self.sensor_readings[self.count] < 0:
+            self.sensor_readings[self.count] = 0
 
       curr_res = np.reshape(self.sensor_readings, (self.imgHeight, self.imgWidth))
 
@@ -147,6 +152,7 @@ def main():
   #parser.add_argument('--out', default = "../saved_data/sensor_readings_H", help = 'output path (default="../saved_data/sensor_readings_H", saved as "sensor_readings_H.npy")')
   parser.add_argument('--sleepTime', type = int, default = 100, help = 'sleep time in milliseconds -- time between projector update and data capture')
   parser.add_argument('--noise', type = int, default = 0, help = 'noise parameter to simulate non-ideal imaging')
+  parser.add_argument('--noiseFile', default = "", help = 'file containing random noise added to sensor vector')
 
   args = parser.parse_args()
 
@@ -161,7 +167,7 @@ def main():
   #print("Output file: %s \n" % args.out)
 
   app = QtWidgets.QApplication(sys.argv)
-  mask = Mask(args.width, args.height, args.mask, args.image, args.sleepTime, args.noise)
+  mask = Mask(args.width, args.height, args.mask, args.image, args.sleepTime, args.noise, args.noiseFile)
 
   sys.exit(app.exec_())
 

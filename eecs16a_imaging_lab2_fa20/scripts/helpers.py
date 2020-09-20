@@ -14,15 +14,23 @@ def simulateImaging(imagePath, matrix, saveName, height, width, sigma = 0):
     img_arr = np.array(Image.open(imagePath).convert(mode = 'L'))
 
     plt.imshow(img_arr, cmap = 'gray')
+    plt.title("Original Image")
 
     i_vec = np.reshape(img_arr, (height*width, 1))
     s_vec = np.dot(matrix, i_vec)
     if sigma:
         # Noise of mean 0, with standard deviation `sigma` is added to each element of the
         # original column vector s
-        noise = np.random.normal(0, sigma, height * width)
-        noise = np.reshape(noise, (height * width, 1))
+        #noise = np.random.normal(0, sigma, height * width)
+        #noise = np.reshape(noise, (height * width, 1))
+        noise = np.random.randint(-sigma, sigma, size=(height * width, 1))
+        np.save(saveName + '_noise.npy', noise)
         s_vec += noise
+        for i in range(height * width):
+            if (s_vec[i] > 255):
+                s_vec[i] = 255;
+            if (s_vec[i] < 0):
+                s_vec[i] = 0
     np.save(saveName + '.npy', s_vec)
 
 def imageResize(imagePath, saveName, newHeight, newWidth):
