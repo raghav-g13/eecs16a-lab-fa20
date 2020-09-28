@@ -434,7 +434,7 @@ def eigenAnalysisComparison(H1, matrixName1, H2, matrixName2):
     #subplot 1
     ax1 = plt.subplot(211)
     plt.xscale('log')
-    plt.yscale('log', nonposy='clip')
+    plt.yscale('log', nonpositive='clip')
     plt.hist(absEigenH1, 100)
     plt.ylabel('Amount in Each Bin')
     plt.title("Eigenvalues of %s" % matrixName1)
@@ -443,7 +443,7 @@ def eigenAnalysisComparison(H1, matrixName1, H2, matrixName2):
     #subplot 2
     ax2 = plt.subplot(212, sharex=ax1, sharey=ax1)  # share x and y axis scale
     plt.xscale('log')
-    plt.yscale('log', nonposy='clip')
+    plt.yscale('log', nonpositive='clip')
     plt.hist(absEigenH2, 100)
     plt.title("Eigenvalues of %s" % matrixName2)
 
