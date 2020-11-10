@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
 from IPython import display
+import matplotlib.image as mpimg
+
 
 # Inputs
 #  `avg1sPerRow`: Average number of illuminated (white) pixels per mask (row of `H`)

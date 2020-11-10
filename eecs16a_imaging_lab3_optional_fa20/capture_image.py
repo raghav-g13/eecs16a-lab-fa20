@@ -30,8 +30,8 @@ PRINT_DELAY_STATEMENT = True
 #DEFAULT_DISP_WIDTH = 1280
 #DEFAULT_DISP_HEIGHT = 720
 
-DEFAULT_DISP_WIDTH = 1920 
-DEFAULT_DISP_HEIGHT = 1080
+DEFAULT_DISP_WIDTH = 1280 
+DEFAULT_DISP_HEIGHT = 800
 DEFAULT_DISP_WIDTH = 500
 DEFAULT_DISP_HEIGHT = 300
 
@@ -72,9 +72,6 @@ def serial_ports():
   return result
 
 def serial_write(ser, data):
-  if sys.platform.startswith('win'):
-    ser.write([data, ])
-  else:
     ser.write(data)
 
 class Mask(QtWidgets.QWidget):
@@ -149,10 +146,6 @@ class Mask(QtWidgets.QWidget):
     if (self.currCapture == 0):
 
       print("\nDetected %d screens" % QtWidgets.QDesktopWidget().screenCount())
-      if QtWidgets.QDesktopWidget().screenCount() == 1:
-        print("Projector not detected. Please check the connection and try again.")
-        if input("Continue? [y/n]").capitalize() != "Y":
-          quit()
 
       print("Currently displaying on screen %d" % (QtWidgets.QDesktopWidget().screenNumber() + 1))
 
@@ -173,6 +166,7 @@ class Mask(QtWidgets.QWidget):
       self.col = QtGui.QColor(0, 0, 0)
       self.label.setGeometry(QtCore.QRect(0, 0, self.dispWidth, self.dispHeight))
 
+    self.setWindowFlags(self.windowFlags() | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Dialog) #Window pops up on top
     # Flush serial, display the first frame
     serial_write(self.ser, b'9')
     self.updateProjector(0)
@@ -186,9 +180,13 @@ class Mask(QtWidgets.QWidget):
 
   def center(self):
     qr = self.frameGeometry()
-    cp = QtWidgets.QDesktopWidget().availableGeometry(self.screen).center()
-    qr.moveCenter(cp)
-    self.move(qr.bottomRight())
+    screen = QtWidgets.QDesktopWidget().availableGeometry(self.screen)
+    cp = QtCore.QPoint()
+    cp.setX(screen.width() - qr.width())
+    cp.setY(screen.height() - (1.2 * qr.height()))
+    #cp = QtWidgets.QDesktopWidget().availableGeometry(self.screen).center()
+    #qr.moveCenter(cp)
+    self.move(cp)
     #if QtWidgets.QDesktopWidget().screenCount() == 2 and self.screen == 1:       # They have chosen to display on projector
     #  self.move(QtWidgets.QDesktopWidget().screenGeometry(0).width() + 452, 1420)
 
