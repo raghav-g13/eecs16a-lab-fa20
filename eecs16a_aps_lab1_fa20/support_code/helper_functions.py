@@ -60,8 +60,8 @@ def cross_corr_demo_1():
     for i in range(6):
         plt.subplot(2,3,i+1)
         plt.subplots_adjust(hspace = 1);
-        plt.plot(signal2, 'rx-', label='stationary')
-        plt.plot(signal1, 'bo-', label='sliding')
+        plt.plot(signal2, 'rx-', label='sliding')
+        plt.plot(signal1, 'bo-', label='stationary')
         plt.xlim(0, 5)
         plt.ylim(0, 4)
         plt.legend(loc = 'upper left')
@@ -102,8 +102,8 @@ def cross_corr_demo_2():
     for i in range(12):
         plt.subplot(4,3,i+1)
         plt.subplots_adjust(hspace = 1);
-        plt.plot(signal1, 'bo-', label='sliding')
-        plt.plot(signal2, 'rx-', label='stationary')
+        plt.plot(signal1, 'bo-', label='stationary')
+        plt.plot(signal2, 'rx-', label='sliding')
         plt.xlim(0, 11)
         plt.ylim(0, 4)
         plt.legend(loc = 'upper left')
