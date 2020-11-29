@@ -598,10 +598,10 @@ def test_loc(least_squares, construct_system, x_pos, y_pos, inten, debug=False):
     labDemo = APS('new_data.npy', testing = 'Test', ms = True)
     labDemo.generate_raw_signal([x_pos, y_pos])
     raw_signal = labDemo.add_random_noise(inten)
-    _, avgs = labDemo.post_processing(labDemo.rawSignal)
+    _, avgs = labDemo.post_processing(rawSignal)
     labDemo.identify_offsets(avgs)
-    labDemo.signal_to_distances(((1.2)**2+(3.6)**2)**0.5/340.29)
-    distances = labDemo.distancesPost[:4]
+    #labDemo.signal_to_distances((((1.2)**2+(3.6)**2)**0.5)/340.29)
+    #distances = labDemo.distancesPost[:4]
     TDOA = labDemo.offsets_to_tdoas()
     v = labDemo.V_AIR
     speakers = labDemo.beaconsLocation

@@ -45,7 +45,7 @@ class APS:
                                      2. Change to Testing setting (ie: Testing system for some functions, Coordinate =  array([[  0.,   0.], [500.,   0.],
                                                                                                                                [  0., 500.], [500., 500.],
                                                                                                                                [  0., 250.], [250.,   0.]])
-                                        This can be done by setting testing = 'Testing'
+                                        This can be done by setting testing = 'Test'
                                         
                     ms: 1. By default entire system in centimeter scale, 2 Change to meter scale by setting ms = True
                                                                                                                
@@ -151,7 +151,8 @@ class APS:
         
         if noise:
 #             print("Noise!!!!")
-            self.rawSignal = np.roll(np.tile(self.rawSignal, 10),2000) + np.random.normal(0, 1, len(self.rawSignal)*10)
+            noisySignal = self.add_random_noise(10)
+            self.rawSignal = np.roll(np.tile(noisySignal, 10),2000)
         else:
 #             print("No Noise!!!!")
             self.rawSignal = np.roll(np.tile(self.rawSignal, 10),2000)
@@ -594,20 +595,20 @@ class APS:
         plt.plot(raw_signal)     
     
         
-        _, separated = self.post_processing(raw_signal)
+        _, averaged = self.post_processing(raw_signal)
 #         print(len(separated))
         
 
         # Plot the averaged and separated output for each beacon
         
         fig = plt.figure(figsize=(12,6))
-        for i in range(len(separated)):
+        for i in range(len(averaged)):
             plt.subplot(3,2,i+1)
-            plt.plot(separated[i])
+            plt.plot(averaged[i])
             plt.title("Extracted Beacon %d"%i)
         plt.tight_layout()
         
-        self.identify_offsets(separated)
+        self.identify_offsets(averaged)
         self.signal_to_distances(0)
 
         # Calculate quantities and compute least squares solution
@@ -626,20 +627,17 @@ class APS:
         
         #print( "Distance differences (m)): [%s]\n"%", ".join(["%0.4f" % d for d in distances]))
         print( "Least Squares Microphone Position: %0.4f, %0.4f" % (x, y))
-        if self.ms and self.microphoneLocation[0] != 0.25 and self.microphoneLocation[1] != 0.30:
-            print( "Original Microphone Position: %0.4f, %0.4f" % (self.microphoneLocation[0],
+        print( "Actual Microphone Position: %0.4f, %0.4f" % (self.microphoneLocation[0],
                                                                    self.microphoneLocation[1]))
-        elif not self.ms and self.microphoneLocation[0] != 25 and self.microphoneLocation[0] != 30:
-            print( "Original Microphone Position: %0.4f, %0.4f" % (self.microphoneLocation[0],
-                                                       self.microphoneLocation[1]))
-        else:
-            print( "Default Microphone Position (Not Original): %0.4f, %0.4f" % (self.microphoneLocation[0],
-                                                       self.microphoneLocation[1]))
 
-        # Find distance from speaker 0 for plotting
+        # Beacon Distances using signals to distances and t0
         dist_from_origin = np.linalg.norm([x, y])
         dist_from_speakers = [d + dist_from_origin for d in self.distancesPost]
-        print( "Distances from Beacons : [%s]\n"%", ".join(["%0.4f" % d for d in dist_from_speakers]))
+        print( "Calcuated Distances from Beacons : [%s]\n"%", ".join(["%0.4f" % d for d in dist_from_speakers]))
+
+        # Beacon Distances using calculated microphone position and Euclidean Norm
+        # dist_from_speakers = [np.linalg.norm([x - x_s, y - y_s]) for (x_s, y_s) in self.beaconsLocation]
+        # print( "Calcuated Distances from Beacons : [%s]\n"%", ".join(["%0.4f" % d for d in dist_from_speakers]))
 
         # Plot speakers and Microphone
         xmin = min(simulation[:,0])
